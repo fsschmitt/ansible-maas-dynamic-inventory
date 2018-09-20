@@ -208,6 +208,8 @@ class MAASInventory(object):
                             help='Get all the variables about a specific instance')
         parser.add_argument('--refresh-cache', action='store_true', default=False,
                             help='Force refresh of cache by making API requests to MAAS (default: False)')
+        parser.add_argument('--group-by', action='store', default=False,
+                            help='Group the machines by a specific order: tags | hostnames')
         self.args = parser.parse_args()
 
     def read_settings(self):
@@ -252,9 +254,12 @@ class MAASInventory(object):
 
         # MAAS Settings
         if not config.has_section('maas'):
-            config.add_section('cache')
+            config.add_section('maas')
 
-        self.group_machines_by = config.get('maas', 'group_machines_by')
+        self.group_machines_by = self.args.group_by
+
+        if not self.group_machines_by:
+            self.group_machines_by = config.get('maas', 'group_machines_by')
 
     def config_cache(self):
         ''' Configure the cache settings '''
